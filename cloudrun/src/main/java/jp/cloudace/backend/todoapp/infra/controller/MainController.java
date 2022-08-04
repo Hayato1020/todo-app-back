@@ -3,6 +3,8 @@ package jp.cloudace.backend.todoapp.infra.controller;
 import jp.cloudace.backend.todoapp.usecase.Hello;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,13 +23,13 @@ public class MainController {
         this.hello = hello;
     }
 
-    @RequestMapping("/")
+    @GetMapping("/")
     public String helloCloud(HttpServletRequest request) {
         logger.debug("DemoController#HelloCloud");
         return hello.action();
     }
 
-    @RequestMapping("/now")
+    @PutMapping("/now")
     public String now() {
         logger.debug("DemoController#now");
         LocalDateTime now1 = LocalDateTime.now();

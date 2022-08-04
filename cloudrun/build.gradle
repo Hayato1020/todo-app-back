@@ -29,6 +29,9 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 	implementation 'com.google.cloud:spring-cloud-gcp-starter-logging'
+
+	// https://qiita.com/m_masashi/items/61700164e8aaa35481b3
+	implementation 'org.springdoc:springdoc-openapi-ui:1.6.6'
 }
 
 tasks.named('test') {
