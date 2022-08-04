@@ -12,9 +12,23 @@ repositories {
 	mavenCentral()
 }
 
+ext {
+	set('springCloudGcpVersion', "3.0.0")
+	set('springCloudVersion', "2021.0.0")
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "com.google.cloud:spring-cloud-gcp-dependencies:${springCloudGcpVersion}"
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	implementation 'com.google.cloud:spring-cloud-gcp-starter-logging'
 }
 
 tasks.named('test') {
