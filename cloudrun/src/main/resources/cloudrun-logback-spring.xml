@@ -7,7 +7,10 @@
         <appender-ref ref="CONSOLE_JSON"/>
     </root>
 
-    <logger name="jp.heiwado.online.supermarket">
+    <logger name="org.springframework.jdbc.support.JdbcTransactionManager">
+        <level value="DEBUG"/>
+    </logger>
+    <logger name="jp.cloudace.backend.todoapp">
         <level value="DEBUG"/>
     </logger>
 </configuration>
