@@ -11,6 +11,21 @@
     - メニューから`File` `Settings` `Plugins` を選択
     - `doma` を入力し、`Search Results` から `Doma Support` を選択し、インストール。
 
+
+### ローカル起動
+- IntelliJ に、下記の環境変数を設定する：
+
+| Name | Value                                                   |
+| :--- |:--------------------------------------------------------|
+| INSTANCE_CONNECTION_NAME |   |
+| DB_NAME | <データベース名>                                               |
+| DB_USER   | <ユーザ名>                                                  |
+| DB_PASS | <パスワード>                                                 |
+| PROJECT_ID |                                     |
+| GOOGLE_APPLICATION_CREDENTIALS | <サービスアカウントキーファイル>                                       |
+- IntelliJ の機能を利用して起動する。
+
+
 ## API仕様
 ### OpenAPI 3 & Swagger-ui
 * [ローカルUI](http://localhost:8080/swagger-ui/index.html)

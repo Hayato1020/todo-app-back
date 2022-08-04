@@ -25,11 +25,14 @@ dependencyManagement {
 }
 
 dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 	implementation 'com.google.cloud:spring-cloud-gcp-starter-logging'
 
+	implementation 'com.google.cloud.sql:mysql-socket-factory-connector-j-8:1.6.1'
+	runtimeOnly 'mysql:mysql-connector-java'
 	annotationProcessor 'org.seasar.doma:doma-processor:2.52.0'
 	implementation 'org.seasar.doma:doma-core:2.52.0'
 	implementation 'org.seasar.doma.boot:doma-spring-boot-starter:1.6.0'
