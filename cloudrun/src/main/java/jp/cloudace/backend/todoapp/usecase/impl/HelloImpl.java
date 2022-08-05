@@ -1,5 +1,6 @@
-package jp.cloudace.backend.todoapp.usecase;
+package jp.cloudace.backend.todoapp.usecase.impl;
 
+import jp.cloudace.backend.todoapp.usecase.Hello;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
