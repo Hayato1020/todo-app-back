@@ -1,5 +1,6 @@
 package jp.cloudace.backend.todoapp.dao.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.seasar.doma.Column;
 import org.seasar.doma.Entity;
 import org.seasar.doma.Id;
@@ -14,6 +15,7 @@ public class TasksEntity {
      * ユーザーID
      */
     @Column(name = "user_id")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)//NULLの場合にJsonへの変換はしない
     public String userId;
 
     /**
@@ -42,11 +44,14 @@ public class TasksEntity {
     public String labelId;
 
     @Column(name = "created_at")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public Timestamp createdAt;
 
     @Column(name = "updated_at")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public Timestamp updatedAt;
 
     @Column(name = "deleted_at")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public Timestamp deletedAt;
 }
