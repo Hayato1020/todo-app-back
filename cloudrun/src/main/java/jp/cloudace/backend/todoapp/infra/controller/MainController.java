@@ -1,6 +1,7 @@
 package jp.cloudace.backend.todoapp.infra.controller;
 
 //import com.google.cloud.Timestamp;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jp.cloudace.backend.todoapp.dao.entity.TasksEntity;
 import jp.cloudace.backend.todoapp.usecase.Hello;
 import jp.cloudace.backend.todoapp.usecase.Tasks;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import javax.validation.constraints.Null;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -19,6 +21,31 @@ import java.util.List;
 import java.util.UUID;
 import java.sql.Timestamp;
 
+@JsonInclude(JsonInclude.Include.NON_EMPTY)//NULLの場合にJsonへの変換はしない
+class ResponseDTO{
+    ResponseDTO(String successOrError){
+        if(successOrError == "success") {
+            success = new Success();
+        }else if(successOrError == "error"){
+            error = new Error();
+        }
+    }
+    public class Success{
+        public String message;
+        public int code;
+    }
+
+    public class Error{
+        public String message;
+        public int code;
+    }
+
+    public Success success;
+    public Error error;
+    public List<TasksEntity> taskList;
+    public String taskId;
+
+}
 
 @RestController
 public class MainController {
@@ -34,22 +61,37 @@ public class MainController {
     }
 
     @GetMapping("/task/{userId}")
-    public List<TasksEntity> getUserTask(
+    public ResponseDTO getUserTask(
             @PathVariable String userId,
             HttpServletRequest request) {
         logger.debug("MainController#getTaskList");
-        return tasks.getUserTaskList(userId);
+        ResponseDTO responseBody = new ResponseDTO("success");
+        responseBody.taskList = tasks.getUserTaskList(userId);
+        responseBody.success.code = 200;
+        responseBody.success.message = "HTTP request was succeed: OK";
+        return responseBody;
     }
 
     @PostMapping("/task")
-    public int postTask(@RequestBody TasksEntity req){
+    public ResponseDTO postTask(@RequestBody TasksEntity req){
         logger.debug("MainController#postTask");
+
+        ResponseDTO responseBody;
+
+        //エラー処理 必須項目がnullと空文字の時にエラー処理をする
+        if(req.userId == null || req.task == null || req.priorityOfTask == null || req.userId == "" || req.task == ""){
+            responseBody = new ResponseDTO("error");
+            responseBody.error.message = "HTTP request was failed: Bad request";
+            responseBody.error.code = 400;
+            return responseBody;
+        }
 
         //現在時刻の取得とTimestamp型への変換
         Long datetime = System.currentTimeMillis();
         Timestamp timestamp = new Timestamp(datetime);
 
         TasksEntity tasksEntity = new TasksEntity();
+
         tasksEntity.userId = req.userId;
         tasksEntity.taskId = UUID.randomUUID().toString();
         tasksEntity.task = req.task;
@@ -60,12 +102,37 @@ public class MainController {
         tasksEntity.labelId = req.labelId;
         tasksEntity.createdAt = timestamp;
         tasksEntity.updatedAt = timestamp;
-        return tasks.postTask(tasksEntity);
+
+        //テーブルへの挿入処理
+        tasks.postTask(tasksEntity);
+
+        //成功時の処理
+        responseBody = new ResponseDTO("success");
+        responseBody.taskId = tasksEntity.taskId;
+        responseBody.success.code = 200;
+        responseBody.success.message = "HTTP request was succeed: OK";
+        return responseBody;
     }
 
     @PutMapping("/task")
-    public int putTask(@RequestBody TasksEntity req){
+    public ResponseDTO putTask(@RequestBody TasksEntity req){
         logger.debug("MainController#putTask");
+
+        ResponseDTO responseBody;
+
+        //エラー処理 必須項目がnullと空文字の時にエラー処理をする
+        if(req.userId == null || req.taskId == null || req.task == null || req.priorityOfTask == null ||
+                req.userId == "" || req.taskId == "" || req.task == "" ){
+            responseBody = new ResponseDTO("error");
+            responseBody.error.message = "HTTP request was failed: Bad request";
+            responseBody.error.code = 400;
+            return responseBody;
+        }
+
+        //現在時刻の取得とTimestamp型への変換
+        Long datetime = System.currentTimeMillis();
+        Timestamp timestamp = new Timestamp(datetime);
+
         TasksEntity tasksEntity = new TasksEntity();
         tasksEntity.userId = req.userId;
         tasksEntity.taskId = req.taskId;
@@ -75,17 +142,50 @@ public class MainController {
         tasksEntity.priorityOfTask = req.priorityOfTask;
         tasksEntity.statusId = req.statusId;
         tasksEntity.labelId = req.labelId;
-        return tasks.putTask(tasksEntity);
+        tasksEntity.updatedAt = timestamp;
+
+        //テーブルの更新処理
+        tasks.putTask(tasksEntity);
+
+        //成功時の処理
+        responseBody = new ResponseDTO("success");
+        responseBody.success.code = 200;
+        responseBody.success.message = "HTTP request was succeed: OK";
+        return responseBody;
 
     }
 
     @DeleteMapping("/task")
-    public int deleteTask(@RequestBody TasksEntity req){
+    public ResponseDTO deleteTask(@RequestBody TasksEntity req){
         logger.debug("MainController#deleteTask");
+
+        ResponseDTO responseBody;
+
+        //エラー処理 必須項目がnullと空文字の時にエラー処理をする
+        if(req.userId == null || req.taskId == null || req.userId == "" || req.taskId == ""){
+            responseBody = new ResponseDTO("error");
+            responseBody.error.message = "HTTP request was failed: Bad request";
+            responseBody.error.code = 400;
+            return responseBody;
+        }
+
         TasksEntity tasksEntity = new TasksEntity();
         tasksEntity.userId = req.userId;
         tasksEntity.taskId = req.taskId;
-        return tasks.deleteTask(tasksEntity);
+
+        //削除するレコードがない場合
+        if (tasks.deleteTask(tasksEntity) != 1) {
+            responseBody = new ResponseDTO("error");
+            responseBody.error.message = "There is no field to delete.";
+            responseBody.error.code = 400;
+            return responseBody;
+        }
+
+        responseBody = new ResponseDTO("success");
+        responseBody.success.code = 200;
+        responseBody.success.message = "HTTP request was succeed: OK";
+
+        return responseBody;
     }
 
     @GetMapping("/")
