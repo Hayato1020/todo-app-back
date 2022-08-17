@@ -4,11 +4,11 @@ package jp.cloudace.backend.todoapp.dao;
 import jp.cloudace.backend.todoapp.dao.entity.TasksEntity;
 import org.seasar.doma.*;
 import org.seasar.doma.boot.ConfigAutowireable;
-
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
- * タスク Dao
+ * タスク Dao実装クラスを自動で生成
  */
 @ConfigAutowireable
 @Dao
@@ -28,8 +28,8 @@ public interface TasksDao {
      * @param tasksEntity 　エンティティ
      * @return 件数
      */
-    @Update
-    int update(TasksEntity tasksEntity);
+    @Update(sqlFile = true)
+    int updateTask(TasksEntity tasksEntity);
 
     /**
      * 削除
@@ -37,8 +37,8 @@ public interface TasksDao {
      * @param tasksEntity 　エンティティ
      * @return 件数
      */
-    @Delete
-    int delete(TasksEntity tasksEntity);
+    @Delete(sqlFile = true)
+    int deleteTask(TasksEntity tasksEntity);
 
     /**
      * 全データ取得
@@ -47,4 +47,8 @@ public interface TasksDao {
      */
     @Select
     List<TasksEntity> getAll();
+
+    @Select
+    List<TasksEntity> getTasks(String userId);
+
 }
