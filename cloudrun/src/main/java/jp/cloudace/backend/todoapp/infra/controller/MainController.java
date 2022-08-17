@@ -2,8 +2,10 @@ package jp.cloudace.backend.todoapp.infra.controller;
 
 //import com.google.cloud.Timestamp;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jp.cloudace.backend.todoapp.dao.entity.LabelsEntity;
 import jp.cloudace.backend.todoapp.dao.entity.TasksEntity;
 import jp.cloudace.backend.todoapp.usecase.Hello;
+import jp.cloudace.backend.todoapp.usecase.Labels;
 import jp.cloudace.backend.todoapp.usecase.Tasks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +46,8 @@ class ResponseDTO{
     public Error error;
     public List<TasksEntity> taskList;
     public String taskId;
+    public List<LabelsEntity> labelList;
+    public String labelId;
 
 }
 
@@ -54,10 +58,12 @@ public class MainController {
 
     private final Hello hello;
     private final Tasks tasks;
+    private final Labels labels;
 
-    public MainController(Hello hello, Tasks tasks) {
+    public MainController(Hello hello, Tasks tasks, Labels labels) {
         this.hello = hello;
         this.tasks = tasks;
+        this.labels = labels;
     }
 
     @GetMapping("/task/{userId}")
@@ -188,10 +194,81 @@ public class MainController {
         return responseBody;
     }
 
-    @GetMapping("/")
-    public String helloCloud(HttpServletRequest request) {
-        logger.debug("DemoController#HelloCloud");
-        return hello.action();
+
+    @GetMapping("/label/{userId}")
+    public ResponseDTO getLabel(@PathVariable String userId){
+        logger.debug("MainController#getLabel");
+        ResponseDTO responseBody = new ResponseDTO("success");
+        responseBody.labelList = labels.getLabel(userId);
+        responseBody.success.code = 200;
+        responseBody.success.message = "HTTP request was succeed: OK";
+        return responseBody;
+    }
+
+    @PostMapping("/label")
+    public ResponseDTO postLabel(@RequestBody LabelsEntity req){
+        logger.debug("MainController#postLabel");
+        ResponseDTO responseBody;
+
+        //エラー処理 必須項目がnullと空文字の時にエラー処理をする
+        if(req.label == null || req.userId == null || req.label == "" || req.userId == ""){
+            responseBody = new ResponseDTO("error");
+            responseBody.error.message = "HTTP request was failed: Bad request";
+            responseBody.error.code = 400;
+            return responseBody;
+        }
+
+        //現在時刻の取得とTimestamp型への変換
+        Long datetime = System.currentTimeMillis();
+        Timestamp timestamp = new Timestamp(datetime);
+
+        LabelsEntity labelsEntity = new LabelsEntity();
+        labelsEntity.labelId = UUID.randomUUID().toString();
+        labelsEntity.label = req.label;
+        labelsEntity.userId = req.userId;
+        labelsEntity.createdAt = timestamp;
+
+        //テーブルへの挿入処理
+        labels.postLabel(labelsEntity);
+
+        //成功時の処理
+        responseBody = new ResponseDTO("success");
+        responseBody.labelId = labelsEntity.labelId;
+        responseBody.success.code = 200;
+        responseBody.success.message = "HTTP request was succeed: OK";
+        return responseBody;
+    }
+
+    @DeleteMapping("/label")
+    public ResponseDTO deleteLabel(@RequestBody LabelsEntity req){
+        logger.debug("MainController#deleteLabel");
+        ResponseDTO responseBody;
+
+        //エラー処理 必須項目がnullと空文字の時にエラー処理をする
+        if(req.userId == null || req.labelId == null || req.userId == "" || req.labelId == ""){
+            responseBody = new ResponseDTO("error");
+            responseBody.error.message = "HTTP request was failed: Bad request";
+            responseBody.error.code = 400;
+            return responseBody;
+        }
+
+        LabelsEntity labelsEntity = new LabelsEntity();
+        labelsEntity.userId = req.userId;
+        labelsEntity.labelId = req.labelId;
+
+        //削除するレコードがない場合
+        if (labels.deleteLabel(labelsEntity) != 1) {
+            responseBody = new ResponseDTO("error");
+            responseBody.error.message = "There is no field to delete.";
+            responseBody.error.code = 400;
+            return responseBody;
+        }
+
+        responseBody = new ResponseDTO("success");
+        responseBody.success.code = 200;
+        responseBody.success.message = "HTTP request was succeed: OK";
+
+        return responseBody;
     }
 
     @PutMapping("/now")
