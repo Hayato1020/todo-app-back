@@ -3,10 +3,13 @@ package jp.cloudace.backend.todoapp.infra.controller;
 //import com.google.cloud.Timestamp;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jp.cloudace.backend.todoapp.dao.entity.LabelsEntity;
+import jp.cloudace.backend.todoapp.dao.entity.StatusesEntity;
 import jp.cloudace.backend.todoapp.dao.entity.TasksEntity;
 import jp.cloudace.backend.todoapp.usecase.Hello;
 import jp.cloudace.backend.todoapp.usecase.Labels;
 import jp.cloudace.backend.todoapp.usecase.Tasks;
+import jp.cloudace.backend.todoapp.usecase.Statuses;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -48,6 +51,7 @@ class ResponseDTO{
     public String taskId;
     public List<LabelsEntity> labelList;
     public String labelId;
+    public List<StatusesEntity> statusesList;
 
 }
 
@@ -59,11 +63,13 @@ public class MainController {
     private final Hello hello;
     private final Tasks tasks;
     private final Labels labels;
+    private final Statuses statuses;
 
-    public MainController(Hello hello, Tasks tasks, Labels labels) {
+    public MainController(Hello hello, Tasks tasks, Labels labels, Statuses statuses) {
         this.hello = hello;
         this.tasks = tasks;
         this.labels = labels;
+        this.statuses = statuses;
     }
 
     @GetMapping("/task/{userId}")
@@ -268,6 +274,16 @@ public class MainController {
         responseBody.success.code = 200;
         responseBody.success.message = "HTTP request was succeed: OK";
 
+        return responseBody;
+    }
+
+    @GetMapping("/status")
+    public ResponseDTO getStatus(){
+        logger.debug("MainController#getStatuses");
+        ResponseDTO responseBody = new ResponseDTO("success");
+        responseBody.statusesList = statuses.getStatuses();
+        responseBody.success.code = 200;
+        responseBody.success.message = "HTTP request was succeed: OK";
         return responseBody;
     }
 
