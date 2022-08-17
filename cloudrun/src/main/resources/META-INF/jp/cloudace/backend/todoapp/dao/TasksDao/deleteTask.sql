@@ -1,0 +1,1 @@
+DELETE FROM tasks WHERE task_id = /* tasksEntity.taskId */'854b0619-d5cd-4d0f-a220-00e6ed8b756e'
