@@ -56,6 +56,7 @@ class ResponseDTO{
 }
 
 @RestController
+@CrossOrigin
 public class MainController {
 
     private static final Logger logger = LoggerFactory.getLogger(MainController.class);

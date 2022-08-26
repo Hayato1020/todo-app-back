@@ -7,6 +7,7 @@ import org.seasar.doma.Id;
 import org.seasar.doma.Table;
 
 import java.sql.Timestamp;
+import java.sql.Date;
 
 @Entity
 @Table(name = "tasks")
@@ -32,7 +33,7 @@ public class TasksEntity {
     public String taskInfo;
 
     @Column(name = "deadline_of_task")
-    public Timestamp deadlineOfTask;
+    public Date deadlineOfTask;
 
     @Column(name = "priority_of_task")
     public Short priorityOfTask;
