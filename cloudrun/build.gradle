@@ -39,6 +39,8 @@ dependencies {
 
 	// https://qiita.com/m_masashi/items/61700164e8aaa35481b3
 	implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
+	// firebaseSDKの追加
+	implementation 'com.google.firebase:firebase-admin:9.0.0'
 }
 
 // ↓↓↓↓↓ [DOMA] ↓↓↓↓↓
